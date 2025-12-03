@@ -15,17 +15,25 @@ interface ExpenseResult {
   percentage: number;
 }
 
+// Simple ID generator for better browser compatibility
+let idCounter = 0;
+function generateId(): string {
+  return `participant-${Date.now()}-${++idCounter}`;
+}
+
 export default function ExpenseSplitter() {
   const [totalExpense, setTotalExpense] = useState<string>("");
   const [participants, setParticipants] = useState<Participant[]>([
-    { id: crypto.randomUUID(), name: "", daysStaying: 1 },
+    { id: generateId(), name: "", daysStaying: 1 },
   ]);
   const [results, setResults] = useState<ExpenseResult[]>([]);
+  const [error, setError] = useState<string>("");
+  const [calculatedTotal, setCalculatedTotal] = useState<number>(0);
 
   const addParticipant = () => {
     setParticipants([
       ...participants,
-      { id: crypto.randomUUID(), name: "", daysStaying: 1 },
+      { id: generateId(), name: "", daysStaying: 1 },
     ]);
   };
 
@@ -43,12 +51,15 @@ export default function ExpenseSplitter() {
     setParticipants(
       participants.map((p) => (p.id === id ? { ...p, [field]: value } : p))
     );
+    // Clear error when user starts editing
+    if (error) setError("");
   };
 
   const calculateShares = () => {
     const expense = parseFloat(totalExpense);
     if (isNaN(expense) || expense <= 0) {
-      alert("Please enter a valid total expense amount");
+      setError("Please enter a valid total expense amount");
+      setResults([]);
       return;
     }
 
@@ -57,9 +68,13 @@ export default function ExpenseSplitter() {
     );
 
     if (validParticipants.length === 0) {
-      alert("Please add at least one participant with a name and days staying");
+      setError("Please add at least one participant with a name and days staying");
+      setResults([]);
       return;
     }
+
+    setError("");
+    setCalculatedTotal(expense);
 
     const totalDays = validParticipants.reduce(
       (sum, p) => sum + p.daysStaying,
@@ -78,8 +93,10 @@ export default function ExpenseSplitter() {
 
   const resetForm = () => {
     setTotalExpense("");
-    setParticipants([{ id: crypto.randomUUID(), name: "", daysStaying: 1 }]);
+    setParticipants([{ id: generateId(), name: "", daysStaying: 1 }]);
     setResults([]);
+    setError("");
+    setCalculatedTotal(0);
   };
 
   return (
@@ -106,7 +123,10 @@ export default function ExpenseSplitter() {
           <input
             type="number"
             value={totalExpense}
-            onChange={(e) => setTotalExpense(e.target.value)}
+            onChange={(e) => {
+              setTotalExpense(e.target.value);
+              if (error) setError("");
+            }}
             placeholder="Enter total expense"
             className="w-full pl-8 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
             min="0"
@@ -114,6 +134,13 @@ export default function ExpenseSplitter() {
           />
         </div>
       </div>
+
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg mb-6">
+          {error}
+        </div>
+      )}
 
       {/* Participants */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
@@ -231,7 +258,7 @@ export default function ExpenseSplitter() {
                 Total
               </span>
               <span className="text-xl font-bold text-gray-900 dark:text-white">
-                ${parseFloat(totalExpense).toFixed(2)}
+                ${calculatedTotal.toFixed(2)}
               </span>
             </div>
           </div>
