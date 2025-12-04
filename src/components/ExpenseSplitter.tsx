@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Participant, SubExpense, ExpenseResult } from "./types";
+import { useRouter } from "next/navigation";
+import { Participant, SubExpense } from "./types";
 import { generateId, calculateExpenseShares } from "./utils";
 import { mockParticipants } from "./mockData";
 import {
@@ -12,16 +13,14 @@ import {
 } from "./ExpenseInputs";
 import { ParticipantsList } from "./ParticipantsList";
 import { SubExpensesList } from "./SubExpensesList";
-import { ResultsDisplay } from "./ResultsDisplay";
 
 export default function ExpenseSplitter() {
+  const router = useRouter();
   const [totalExpense, setTotalExpense] = useState<string>("");
   const [participants, setParticipants] =
     useState<Participant[]>(mockParticipants);
   const [subExpenses, setSubExpenses] = useState<SubExpense[]>([]);
-  const [results, setResults] = useState<ExpenseResult[]>([]);
   const [error, setError] = useState<string>("");
-  const [calculatedTotal, setCalculatedTotal] = useState<number>(0);
   const [divisionMode, setDivisionMode] = useState<"individual" | "global">(
     "individual"
   );
@@ -115,7 +114,6 @@ export default function ExpenseSplitter() {
     const expense = parseFloat(totalExpense);
     if (isNaN(expense) || expense <= 0) {
       setError("Please enter a valid total expense amount");
-      setResults([]);
       return;
     }
 
@@ -127,7 +125,6 @@ export default function ExpenseSplitter() {
       setError(
         "Please add at least one participant with a name and days staying"
       );
-      setResults([]);
       return;
     }
 
@@ -135,13 +132,11 @@ export default function ExpenseSplitter() {
       const globalDaysNum = parseFloat(globalDays);
       if (isNaN(globalDaysNum) || globalDaysNum <= 0) {
         setError("Please enter a valid number of global days");
-        setResults([]);
         return;
       }
     }
 
     setError("");
-    setCalculatedTotal(expense);
 
     const globalDaysNum =
       divisionMode === "global" ? parseFloat(globalDays) : 0;
@@ -153,7 +148,16 @@ export default function ExpenseSplitter() {
       globalDaysNum
     );
 
-    setResults(calculatedResults);
+    // Encode results and navigate to results page
+    const resultsJson = encodeURIComponent(JSON.stringify(calculatedResults));
+    const searchParams = new URLSearchParams({
+      data: resultsJson,
+      total: expense.toString(),
+      mode: divisionMode,
+      days: globalDaysNum.toString(),
+    });
+
+    router.push(`/results?${searchParams.toString()}`);
   };
 
   // Reset
@@ -161,9 +165,7 @@ export default function ExpenseSplitter() {
     setTotalExpense("");
     setParticipants(mockParticipants);
     setSubExpenses([]);
-    setResults([]);
     setError("");
-    setCalculatedTotal(0);
     setDivisionMode("individual");
     setGlobalDays("");
   };
@@ -216,13 +218,6 @@ export default function ExpenseSplitter() {
       <ActionButtons
         onCalculate={handleCalculateShares}
         onReset={handleReset}
-      />
-
-      {/* Results */}
-      <ResultsDisplay
-        results={results}
-        calculatedTotal={calculatedTotal}
-        divisionMode={divisionMode}
       />
     </div>
   );
