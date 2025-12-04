@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Participant, SubExpense, ExpenseResult } from "./types";
 import { generateId, calculateExpenseShares } from "./utils";
+import { mockParticipants } from "./mockData";
 import {
   TotalExpenseInput,
   DivisionModeSelector,
@@ -15,9 +16,8 @@ import { ResultsDisplay } from "./ResultsDisplay";
 
 export default function ExpenseSplitter() {
   const [totalExpense, setTotalExpense] = useState<string>("");
-  const [participants, setParticipants] = useState<Participant[]>([
-    { id: generateId(), name: "", daysStaying: 1 },
-  ]);
+  const [participants, setParticipants] =
+    useState<Participant[]>(mockParticipants);
   const [subExpenses, setSubExpenses] = useState<SubExpense[]>([]);
   const [results, setResults] = useState<ExpenseResult[]>([]);
   const [error, setError] = useState<string>("");
@@ -159,7 +159,7 @@ export default function ExpenseSplitter() {
   // Reset
   const handleReset = () => {
     setTotalExpense("");
-    setParticipants([{ id: generateId(), name: "", daysStaying: 1 }]);
+    setParticipants(mockParticipants);
     setSubExpenses([]);
     setResults([]);
     setError("");
@@ -219,7 +219,11 @@ export default function ExpenseSplitter() {
       />
 
       {/* Results */}
-      <ResultsDisplay results={results} calculatedTotal={calculatedTotal} />
+      <ResultsDisplay
+        results={results}
+        calculatedTotal={calculatedTotal}
+        divisionMode={divisionMode}
+      />
     </div>
   );
 }

@@ -11,7 +11,7 @@ export function TotalExpenseInput({ value, onChange }: TotalExpenseInputProps) {
       </label>
       <div className="relative">
         <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-          $
+          €
         </span>
         <input
           type="number"
@@ -64,7 +64,8 @@ export function DivisionModeSelector({
               Sum of Individual Days
             </p>
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Divide by total of all participant days (default)
+              Each person pays based on their portion of total days. Example:
+              €600 with 2 people × 3 days each (6 total days) = €100/day each
             </p>
           </div>
         </label>
@@ -84,17 +85,18 @@ export function DivisionModeSelector({
           />
           <div className="flex-1">
             <p className="font-medium text-gray-900 dark:text-white">
-              Global Days
+              Global Days (Equal Split)
             </p>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-              Set a fixed total number of days for the entire event
+              Divide expense equally among participants. Example: €870 with 2
+              people = €435 each
             </p>
             {mode === "global" && (
               <input
                 type="number"
                 value={globalDays}
                 onChange={(e) => onGlobalDaysChange(e.target.value)}
-                placeholder="Enter total days"
+                placeholder="Enter total days (informational)"
                 className="w-full sm:w-40 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                 min="1"
                 step="1"

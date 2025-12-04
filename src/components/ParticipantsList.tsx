@@ -35,7 +35,10 @@ export function ParticipantsList({
           + Add Person
         </button>
       </div>
-
+      <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+        Enter each person's name and how many days they will stay. The expense
+        will be divided proportionally based on their days.
+      </p>{" "}
       <div className="space-y-4">
         {participants.map((participant, index) => (
           <div

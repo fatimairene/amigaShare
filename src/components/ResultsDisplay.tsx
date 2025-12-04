@@ -2,18 +2,49 @@ import { ExpenseResult } from "./types";
 
 interface ResultsDisplayProps {
   results: ExpenseResult[];
+  calculatedTotal: number;
+  divisionMode?: "individual" | "global";
+  totalDaysUsed?: number;
 }
 
-export function ResultsDisplay({ results }: ResultsDisplayProps) {
+export function ResultsDisplay({
+  results,
+  calculatedTotal,
+  divisionMode = "individual",
+  totalDaysUsed,
+}: ResultsDisplayProps) {
   if (results.length === 0) return null;
 
   const grandTotal = results.reduce((sum, r) => sum + r.totalShare, 0);
+  const totalDaysFromResults = results.reduce(
+    (sum, r) => sum + r.daysStaying,
+    0
+  );
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
       <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
         💰 Expense Breakdown
       </h2>
+
+      {/* Calculation Info */}
+      <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+        <p className="text-sm text-blue-800 dark:text-blue-200">
+          <span className="font-semibold">Calculation:</span>{" "}
+          {divisionMode === "global"
+            ? `€${calculatedTotal.toFixed(
+                2
+              )} ÷ ${totalDaysFromResults} person-days = €${(
+                calculatedTotal / totalDaysFromResults
+              ).toFixed(2)}/person-day`
+            : `€${calculatedTotal.toFixed(
+                2
+              )} ÷ ${totalDaysFromResults} days = €${(
+                calculatedTotal / totalDaysFromResults
+              ).toFixed(2)}/day`}
+        </p>
+      </div>
+
       <div className="space-y-4">
         {results.map((result, index) => (
           <div
@@ -38,7 +69,7 @@ export function ResultsDisplay({ results }: ResultsDisplayProps) {
                 Base share ({result.percentage.toFixed(1)}%)
               </span>
               <span className="text-gray-900 dark:text-white">
-                ${result.baseShare.toFixed(2)}
+                €{result.baseShare.toFixed(2)}
               </span>
             </div>
 
@@ -54,7 +85,7 @@ export function ResultsDisplay({ results }: ResultsDisplayProps) {
                     ({charge.splitMode === "divided" ? "÷" : "✕"})
                   </span>
                 </span>
-                <span>+${charge.amount.toFixed(2)}</span>
+                <span>+€{charge.amount.toFixed(2)}</span>
               </div>
             ))}
 
@@ -64,7 +95,7 @@ export function ResultsDisplay({ results }: ResultsDisplayProps) {
                 Total
               </span>
               <span className="text-xl font-bold text-green-600 dark:text-green-400">
-                ${result.totalShare.toFixed(2)}
+                €{result.totalShare.toFixed(2)}
               </span>
             </div>
           </div>
@@ -78,7 +109,7 @@ export function ResultsDisplay({ results }: ResultsDisplayProps) {
             Grand Total
           </span>
           <span className="text-2xl font-bold text-gray-900 dark:text-white">
-            ${grandTotal.toFixed(2)}
+            €{grandTotal.toFixed(2)}
           </span>
         </div>
       </div>
