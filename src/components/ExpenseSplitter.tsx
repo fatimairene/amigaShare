@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Participant, SubExpense } from "./shared/types";
 import { generateId, calculateExpenseShares } from "./shared/utils";
-import { mockParticipants } from "./shared/mockData";
 import {
   TotalExpenseInput,
   DivisionModeSelector,
@@ -17,8 +16,7 @@ import { SubExpensesList } from "./SubExpensesList";
 export default function ExpenseSplitter() {
   const router = useRouter();
   const [totalExpense, setTotalExpense] = useState<string>("");
-  const [participants, setParticipants] =
-    useState<Participant[]>(mockParticipants);
+  const [participants, setParticipants] = useState<Participant[]>([]);
   const [subExpenses, setSubExpenses] = useState<SubExpense[]>([]);
   const [error, setError] = useState<string>("");
   const [divisionMode, setDivisionMode] = useState<
@@ -27,11 +25,8 @@ export default function ExpenseSplitter() {
   const [globalDays, setGlobalDays] = useState<string>("");
 
   // Participant handlers
-  const handleAddParticipant = () => {
-    setParticipants([
-      ...participants,
-      { id: generateId(), name: "", daysStaying: 1 },
-    ]);
+  const handleAddParticipant = (name: string, daysStaying: number) => {
+    setParticipants([...participants, { id: generateId(), name, daysStaying }]);
   };
 
   const handleRemoveParticipant = (id: string) => {
