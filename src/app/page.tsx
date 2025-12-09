@@ -1,7 +1,18 @@
+"use client";
+
+import { useState } from "react";
+import UsersList from "@/components/UsersList";
+
 export default function Home() {
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleUserAdded = () => {
+    setRefreshKey((prev) => prev + 1);
+  };
+
   return (
     <div>
-      <h1>Welcome to bollis application</h1>
+      <UsersList key={refreshKey} onUserAdded={handleUserAdded} />
     </div>
   );
 }

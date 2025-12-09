@@ -1,13 +1,17 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ResultsDisplay } from "@/components/ResultsDisplay";
 import { ExpenseResult } from "@/components/shared/types";
+import { useDatabase } from "@/hooks/useDatabase";
 
 function ResultsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { saveExpenseSession } = useDatabase();
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState("");
 
   // Get the encoded results from URL params
   const resultsJson = searchParams.get("data");
@@ -46,15 +50,61 @@ function ResultsPageContent() {
     console.error("Failed to parse results:", error);
   }
 
+  const handleSaveSession = async () => {
+    setIsSaving(true);
+    setSaveMessage("");
+
+    try {
+      // Create a session name with timestamp
+      const now = new Date();
+      const sessionName = `Gastos ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+
+      await saveExpenseSession({
+        name: sessionName,
+        totalExpense: parseFloat(calculatedTotal),
+        divisionMode: divisionMode || "individual",
+        globalDays: parseFloat(totalDaysUsed || "0"),
+        participants: [],
+        subExpenses: [],
+        results: results,
+      });
+
+      setSaveMessage("✅ Session saved successfully!");
+      setTimeout(() => setSaveMessage(""), 3000);
+    } catch (error) {
+      console.error("Error saving session:", error);
+      setSaveMessage("❌ Error saving session");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-12 px-4">
       <div className="w-full max-w-2xl mx-auto">
-        <button
-          onClick={() => router.push("/")}
-          className="mb-6 bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-        >
-          ← Back to Calculator
-        </button>
+        <div className="flex gap-3 mb-6">
+          <button
+            onClick={() => router.push("/splitHouse")}
+            className="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+          >
+            ← Back to Calculator
+          </button>
+          <button
+            onClick={handleSaveSession}
+            disabled={isSaving}
+            className="bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+          >
+            {isSaving ? "Saving..." : "💾 Save Session"}
+          </button>
+        </div>
+
+        {saveMessage && (
+          <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg">
+            <p className="text-blue-800 dark:text-blue-200 font-medium">
+              {saveMessage}
+            </p>
+          </div>
+        )}
 
         <ResultsDisplay
           results={results}
