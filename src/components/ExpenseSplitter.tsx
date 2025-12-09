@@ -170,7 +170,7 @@ export default function ExpenseSplitter() {
   // Reset
   const handleReset = () => {
     setTotalExpense("");
-    setParticipants(mockParticipants);
+    setParticipants([]);
     setSubExpenses([]);
     setError("");
     setDivisionMode("individual");
