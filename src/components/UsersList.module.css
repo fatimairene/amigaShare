@@ -1,8 +1,9 @@
 .container {
-  padding: 20px;
+  padding: 15px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 10px;
-  margin: 20px 0;
+  margin: 10px auto;
+  max-width: 1200px;
 }
 
 .header {
@@ -140,13 +141,13 @@
   overflow-x: auto;
   background-color: rgba(255, 255, 255, 0.95);
   border-radius: 8px;
-  padding: 15px;
+  padding: 10px;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 12px;
   color: #333;
 }
 
@@ -156,13 +157,13 @@
 }
 
 .table th {
-  padding: 12px;
+  padding: 8px 6px;
   text-align: left;
   font-weight: 600;
 }
 
 .table td {
-  padding: 12px;
+  padding: 8px 6px;
   border-bottom: 1px solid #e0e0e0;
   color: #333;
 }

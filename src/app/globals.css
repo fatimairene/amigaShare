@@ -28,8 +28,8 @@ body {
 }
 
 main {
-  margin-left: 250px;
+  margin-left: 80px;
   min-height: 100vh;
-  padding: 2rem;
+  padding: 1rem;
   transition: margin-left 0.3s ease;
 }
