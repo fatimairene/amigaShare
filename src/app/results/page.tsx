@@ -3,18 +3,19 @@
 import { Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ResultsDisplay } from "@/components/ResultsDisplay";
-import { ExpenseResult } from "@/components/types";
+import { ExpenseResult } from "@/components/shared/types";
 
 function ResultsPageContent() {
-  const searchParams = useSearchParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   // Get the encoded results from URL params
   const resultsJson = searchParams.get("data");
   const calculatedTotal = searchParams.get("total");
   const divisionMode = searchParams.get("mode") as
     | "individual"
-    | "global"
+    | "daily-split"
+    | "equal"
     | undefined;
   const totalDaysUsed = searchParams.get("days");
 
@@ -59,7 +60,6 @@ function ResultsPageContent() {
           results={results}
           calculatedTotal={parseFloat(calculatedTotal)}
           divisionMode={divisionMode}
-          totalDaysUsed={totalDaysUsed ? parseInt(totalDaysUsed) : undefined}
         />
       </div>
     </div>

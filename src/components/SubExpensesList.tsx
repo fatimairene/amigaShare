@@ -1,4 +1,4 @@
-import { SubExpense, Participant } from "./types";
+import { SubExpense, Participant } from "./shared/types";
 
 interface SubExpenseItemProps {
   subExpense: SubExpense;
@@ -32,7 +32,12 @@ export function SubExpenseItem({
             className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-600 dark:text-white"
           />
           <div className="flex items-center gap-2 flex-shrink-0">
-            <span className="text-gray-500 dark:text-gray-400">€</span>
+            <span
+              className="text-gray-500 dark:text-gray-400"
+              style={{ right: "12px", left: "auto" }}
+            >
+              €
+            </span>
             <input
               type="number"
               value={subExpense.amount}

@@ -14,7 +14,7 @@ export function calculateExpenseShares(
     applicableParticipantIds: string[];
     splitMode: "individual" | "divided";
   }[],
-  divisionMode: "individual" | "global",
+  divisionMode: "individual" | "daily-split" | "equal",
   globalDays: number
 ) {
   const validParticipants = participants.filter(
@@ -25,19 +25,31 @@ export function calculateExpenseShares(
     let baseShare: number;
     let percentage: number;
 
-    if (divisionMode === "global") {
-      // In global mode, calculate total person-days
-      // Then divide expense by total person-days to get cost per person-day
-      // Each person pays: cost per person-day × their days staying
-      const totalPersonDays = validParticipants.reduce(
-        (sum, participant) => sum + participant.daysStaying,
-        0
+    if (divisionMode === "equal") {
+      // Equal split among all participants
+      baseShare = totalExpense / validParticipants.length;
+      percentage = (1 / validParticipants.length) * 100;
+    } else if (divisionMode === "daily-split") {
+      // Split by day: divide cost by number of unique days, then by people present that day
+      const totalDays = Math.max(
+        ...validParticipants.map((p) => p.daysStaying),
+        1
       );
-      const costPerPersonDay = totalExpense / totalPersonDays;
-      baseShare = costPerPersonDay * p.daysStaying;
-      percentage = (p.daysStaying / totalPersonDays) * 100;
+      const costPerDay = totalExpense / totalDays;
+
+      // Count how many people are present on each day this person stays
+      let totalCostForThisPerson = 0;
+      for (let day = 1; day <= p.daysStaying; day++) {
+        // Count people present on this day
+        const peopleOnThisDay = validParticipants.filter(
+          (participant) => participant.daysStaying >= day
+        ).length;
+        totalCostForThisPerson += costPerDay / peopleOnThisDay;
+      }
+      baseShare = totalCostForThisPerson;
+      percentage = (baseShare / totalExpense) * 100;
     } else {
-      // In individual mode, divide by total days
+      // Individual mode: proportional to days stayed (original method)
       const totalDays = validParticipants.reduce(
         (sum, participant) => sum + participant.daysStaying,
         0

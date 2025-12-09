@@ -10,7 +10,7 @@ export function TotalExpenseInput({ value, onChange }: TotalExpenseInputProps) {
         Total Expense Amount
       </label>
       <div className="relative">
-        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+        <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
           €
         </span>
         <input
@@ -18,7 +18,7 @@ export function TotalExpenseInput({ value, onChange }: TotalExpenseInputProps) {
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Enter total expense"
-          className="w-full pl-8 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+          className="w-full pl-4 pr-8 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
           min="0"
           step="0.01"
         />
@@ -28,9 +28,9 @@ export function TotalExpenseInput({ value, onChange }: TotalExpenseInputProps) {
 }
 
 interface DivisionModeProps {
-  mode: "individual" | "global";
+  mode: "individual" | "daily-split" | "equal";
   globalDays: string;
-  onModeChange: (mode: "individual" | "global") => void;
+  onModeChange: (mode: "individual" | "daily-split" | "equal") => void;
   onGlobalDaysChange: (days: string) => void;
 }
 
@@ -61,11 +61,12 @@ export function DivisionModeSelector({
           />
           <div>
             <p className="font-medium text-gray-900 dark:text-white">
-              Sum of Individual Days
+              Proportional to Days Stayed
             </p>
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Each person pays based on their portion of total days. Example:
-              €600 with 2 people × 3 days each (6 total days) = €100/day each
+              €600 with 2 people (3 days + 2 days = 5 total) = person 1 pays
+              €360, person 2 pays €240
             </p>
           </div>
         </label>
@@ -73,25 +74,51 @@ export function DivisionModeSelector({
         <label
           className="flex items-start gap-3 cursor-pointer p-4 border-2 rounded-lg transition-all"
           style={{
-            borderColor: mode === "global" ? "#3b82f6" : "#e5e7eb",
-            backgroundColor: mode === "global" ? "#eff6ff" : "transparent",
+            borderColor: mode === "daily-split" ? "#3b82f6" : "#e5e7eb",
+            backgroundColor: mode === "daily-split" ? "#eff6ff" : "transparent",
           }}
         >
           <input
             type="radio"
-            checked={mode === "global"}
-            onChange={() => onModeChange("global")}
+            checked={mode === "daily-split"}
+            onChange={() => onModeChange("daily-split")}
+            className="w-4 h-4 mt-1 cursor-pointer accent-blue-500"
+          />
+          <div>
+            <p className="font-medium text-gray-900 dark:text-white">
+              Split by Day
+            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Cost divided by number of days, then split equally among people
+              present that day. Example: €870 for 2 days with 13 people day 1
+              and 11 day 2 = each person pays €33.46 or €39.55 depending on
+              which day
+            </p>
+          </div>
+        </label>
+
+        <label
+          className="flex items-start gap-3 cursor-pointer p-4 border-2 rounded-lg transition-all"
+          style={{
+            borderColor: mode === "equal" ? "#3b82f6" : "#e5e7eb",
+            backgroundColor: mode === "equal" ? "#eff6ff" : "transparent",
+          }}
+        >
+          <input
+            type="radio"
+            checked={mode === "equal"}
+            onChange={() => onModeChange("equal")}
             className="w-4 h-4 mt-1 cursor-pointer accent-blue-500"
           />
           <div className="flex-1">
             <p className="font-medium text-gray-900 dark:text-white">
-              Global Days (Equal Split)
+              Equal Split
             </p>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-              Divide expense equally among participants. Example: €870 with 2
-              people = €435 each
+              Divide expense equally among all participants. Example: €870 with
+              2 people = €435 each
             </p>
-            {mode === "global" && (
+            {mode === "equal" && (
               <input
                 type="number"
                 value={globalDays}

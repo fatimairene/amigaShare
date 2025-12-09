@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Participant, SubExpense } from "./types";
-import { generateId, calculateExpenseShares } from "./utils";
-import { mockParticipants } from "./mockData";
+import { Participant, SubExpense } from "./shared/types";
+import { generateId, calculateExpenseShares } from "./shared/utils";
+import { mockParticipants } from "./shared/mockData";
 import {
   TotalExpenseInput,
   DivisionModeSelector,
@@ -21,9 +21,9 @@ export default function ExpenseSplitter() {
     useState<Participant[]>(mockParticipants);
   const [subExpenses, setSubExpenses] = useState<SubExpense[]>([]);
   const [error, setError] = useState<string>("");
-  const [divisionMode, setDivisionMode] = useState<"individual" | "global">(
-    "individual"
-  );
+  const [divisionMode, setDivisionMode] = useState<
+    "individual" | "daily-split" | "equal"
+  >("individual");
   const [globalDays, setGlobalDays] = useState<string>("");
 
   // Participant handlers
@@ -128,7 +128,7 @@ export default function ExpenseSplitter() {
       return;
     }
 
-    if (divisionMode === "global") {
+    if (divisionMode === "equal") {
       const globalDaysNum = parseFloat(globalDays);
       if (isNaN(globalDaysNum) || globalDaysNum <= 0) {
         setError("Please enter a valid number of global days");
@@ -136,10 +136,22 @@ export default function ExpenseSplitter() {
       }
     }
 
+    if (divisionMode === "daily-split") {
+      const allUniqueDays = new Set<number>();
+      validParticipants.forEach((p) => {
+        for (let i = 1; i <= p.daysStaying; i++) {
+          allUniqueDays.add(i);
+        }
+      });
+      if (allUniqueDays.size === 0) {
+        setError("Please add at least one participant with days staying");
+        return;
+      }
+    }
+
     setError("");
 
-    const globalDaysNum =
-      divisionMode === "global" ? parseFloat(globalDays) : 0;
+    const globalDaysNum = divisionMode === "equal" ? parseFloat(globalDays) : 0;
     const calculatedResults = calculateExpenseShares(
       expense,
       validParticipants,
