@@ -1,9 +1,18 @@
-import ExpenseSplitter from "@/components/ExpenseSplitter";
+"use client";
+
+import { useState } from "react";
+import UsersList from "@/components/UsersList";
 
 export default function Home() {
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleUserAdded = () => {
+    setRefreshKey((prev) => prev + 1);
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-12 px-4">
-      <ExpenseSplitter />
+    <div>
+      <UsersList key={refreshKey} onUserAdded={handleUserAdded} />
     </div>
   );
 }

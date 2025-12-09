@@ -1,0 +1,9 @@
+import ExpenseSplitter from "@/components/ExpenseSplitter";
+
+export default function HomePage() {
+  return (
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 py-12 px-4">
+      <ExpenseSplitter />
+    </div>
+  );
+}
