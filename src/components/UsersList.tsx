@@ -164,7 +164,7 @@ export default function UsersList({ onUserAdded }: UsersListProps) {
   };
 
   const handleEdit = (user: User) => {
-    setEditingId(user._id);
+    setEditingId(user._id || null);
     setFormData({
       name: user.name,
       surname: user.surname,
@@ -418,7 +418,7 @@ export default function UsersList({ onUserAdded }: UsersListProps) {
                         ✏️
                       </button>
                       <button
-                        onClick={() => handleDeleteClick(user._id)}
+                        onClick={() => user._id && handleDeleteClick(user._id)}
                         className={styles.deleteButton}
                         title="Eliminar"
                       >
@@ -435,7 +435,7 @@ export default function UsersList({ onUserAdded }: UsersListProps) {
         <div className={styles.empty}>
           <p>No friends registered yet</p>
           <p className={styles.emptySubtext}>
-            Click on "+ Add Friend" to register the first one
+            {`Click on "+ Add Friend" to register the first one`}
           </p>
         </div>
       )}
