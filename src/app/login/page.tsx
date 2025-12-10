@@ -48,12 +48,9 @@ function LoginContent() {
       }
 
       const data = await response.json();
-      // Store auth token if provided
-      if (data.token) {
-        localStorage.setItem("authToken", data.token);
-        // Dispatch event to notify other components of auth change
-        window.dispatchEvent(new Event("authChange"));
-      }
+      // Token is stored in httpOnly cookie by the server
+      // Dispatch event to notify other components of auth change
+      window.dispatchEvent(new Event("authChange"));
       // Redirigir al home
       router.push("/");
     } catch (err) {

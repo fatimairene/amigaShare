@@ -23,29 +23,27 @@ export default function Sidebar() {
   };
 
   useEffect(() => {
-    // Check if user is logged in by checking for auth token
-    const checkAuth = () => {
-      const token = localStorage.getItem("authToken");
-      setIsLoggedIn(!!token);
-      setIsLoading(false);
+    // Check if user is logged in via API (uses httpOnly cookie)
+    const checkAuth = async () => {
+      try {
+        const response = await fetch("/api/auth/check");
+        const data = await response.json();
+        setIsLoggedIn(data.isAuthenticated);
+      } catch (error) {
+        console.error("Auth check failed:", error);
+        setIsLoggedIn(false);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     checkAuth();
 
-    // Listen for storage changes (when logout happens or token is set)
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "authToken") {
-        const token = localStorage.getItem("authToken");
-        setIsLoggedIn(!!token);
-      }
-    };
-
-    // Listen for custom auth change event
+    // Listen for custom auth change event (triggered after login/logout)
     const handleAuthChange = () => {
       checkAuth();
     };
 
-    window.addEventListener("storage", handleStorageChange);
     window.addEventListener("authChange", handleAuthChange);
 
     // Cierra el menú cuando el usuario interacciona con la página
@@ -67,7 +65,6 @@ export default function Sidebar() {
       document.removeEventListener("click", handleInteraction);
       document.removeEventListener("keydown", closeSidebar);
       document.removeEventListener("scroll", closeSidebar);
-      window.removeEventListener("storage", handleStorageChange);
       window.removeEventListener("authChange", handleAuthChange);
     };
   }, []);
@@ -90,7 +87,6 @@ export default function Sidebar() {
     } catch (error) {
       console.error("Logout error:", error);
     }
-    localStorage.removeItem("authToken");
     // Dispatch event to notify other components of auth change
     window.dispatchEvent(new Event("authChange"));
     setIsLoggedIn(false);
