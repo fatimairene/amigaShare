@@ -48,23 +48,34 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
+    console.log("Attempting to connect to database...");
     const { db } = await connectToDatabase();
 
     if (!db) {
+      console.error("Database object is null");
       return NextResponse.json(
         { error: "Database connection failed" },
         { status: 500 }
       );
     }
 
+    console.log("Connected to database, fetching users...");
     const collection = db.collection("users");
     const users = await collection.find({}).sort({ createdAt: -1 }).toArray();
 
+    console.log(`Successfully fetched ${users.length} users`);
     return NextResponse.json({ success: true, data: users });
   } catch (error) {
-    console.error("Error fetching users:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : "";
+    console.error("Error fetching users:", errorMessage);
+    console.error("Stack:", errorStack);
     return NextResponse.json(
-      { error: "Failed to fetch users", details: String(error) },
+      {
+        error: "Failed to fetch users",
+        details: errorMessage,
+        stack: process.env.NODE_ENV === "development" ? errorStack : undefined,
+      },
       { status: 500 }
     );
   }
