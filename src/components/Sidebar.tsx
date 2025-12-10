@@ -1,13 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import styles from "./Sidebar.module.css";
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const isActive = (href: string) => pathname === href;
 
@@ -20,6 +23,15 @@ export default function Sidebar() {
   };
 
   useEffect(() => {
+    // Check if user is logged in by checking for auth token
+    const checkAuth = () => {
+      const token = localStorage.getItem("authToken");
+      setIsLoggedIn(!!token);
+      setIsLoading(false);
+    };
+
+    checkAuth();
+
     // Cierra el menú cuando el usuario interacciona con la página
     const handleInteraction = (e: Event) => {
       // No cierra si el clic es en el botón de hamburguesa
@@ -54,6 +66,17 @@ export default function Sidebar() {
     closeSidebar();
   };
 
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+    localStorage.removeItem("authToken");
+    setIsLoggedIn(false);
+    router.push("/login");
+  };
+
   return (
     <>
       <button
@@ -70,30 +93,47 @@ export default function Sidebar() {
         onClick={(e) => e.stopPropagation()}
       >
         <nav className={styles.nav} onClick={handleNavClick}>
-          <Link
-            href="/"
-            className={`${styles.navLink} ${
-              isActive("/") ? styles.active : ""
-            }`}
-          >
-            Home
-          </Link>
-          <Link
-            href="/splitHouse"
-            className={`${styles.navLink} ${
-              isActive("/splitHouse") ? styles.active : ""
-            }`}
-          >
-            Casa rural
-          </Link>
-          <Link
-            href="/colours"
-            className={`${styles.navLink} ${
-              isActive("/colours") ? styles.active : ""
-            }`}
-          >
-            Colores
-          </Link>
+          {isLoggedIn && (
+            <>
+              <Link
+                href="/"
+                className={`${styles.navLink} ${
+                  isActive("/") ? styles.active : ""
+                }`}
+              >
+                Home
+              </Link>
+              <Link
+                href="/splitHouse"
+                className={`${styles.navLink} ${
+                  isActive("/splitHouse") ? styles.active : ""
+                }`}
+              >
+                Casa rural
+              </Link>
+              <Link
+                href="/colours"
+                className={`${styles.navLink} ${
+                  isActive("/colours") ? styles.active : ""
+                }`}
+              >
+                Colores
+              </Link>
+            </>
+          )}
+          {isLoggedIn && (
+            <button onClick={handleLogout} className={styles.logoutButton}>
+              Logout
+            </button>
+          )}
+          {!isLoggedIn && !isLoading && (
+            <div className={styles.notLoggedInMessage}>
+              <p>Please log in to access the app</p>
+              <Link href="/login" className={styles.loginLink}>
+                Go to Login
+              </Link>
+            </div>
+          )}
         </nav>
       </aside>
     </>
