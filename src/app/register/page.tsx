@@ -3,12 +3,17 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { validatePasswordStrength } from "@/lib/passwordValidator";
 import styles from "./register.module.css";
 
 export default function RegisterPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
+  const [passwordStrength, setPasswordStrength] = useState<
+    "weak" | "fair" | "good" | "strong" | null
+  >(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -19,6 +24,16 @@ export default function RegisterPage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Validate password strength when password field changes
+    if (name === "password" && value) {
+      const validation = validatePasswordStrength(value);
+      setPasswordErrors(validation.errors);
+      setPasswordStrength(validation.strength);
+    } else if (name === "password" && !value) {
+      setPasswordErrors([]);
+      setPasswordStrength(null);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,13 +46,15 @@ export default function RegisterPage() {
       return;
     }
 
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+    // Validate password strength
+    const validation = validatePasswordStrength(formData.password);
+    if (!validation.isValid) {
+      setError("Password does not meet security requirements");
       return;
     }
 
-    if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters");
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
       return;
     }
 
@@ -112,9 +129,48 @@ export default function RegisterPage() {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              placeholder="At least 6 characters"
+              placeholder="Create a strong password"
               required
             />
+            {formData.password && (
+              <div className={styles.passwordFeedback}>
+                <div
+                  className={styles.strengthBar}
+                  style={{
+                    backgroundColor:
+                      passwordStrength === "weak"
+                        ? "#e74c3c"
+                        : passwordStrength === "fair"
+                        ? "#f39c12"
+                        : passwordStrength === "good"
+                        ? "#3498db"
+                        : "#27ae60",
+                    width:
+                      passwordStrength === "weak"
+                        ? "25%"
+                        : passwordStrength === "fair"
+                        ? "50%"
+                        : passwordStrength === "good"
+                        ? "75%"
+                        : "100%",
+                  }}
+                />
+              </div>
+            )}
+            {passwordErrors.length > 0 && (
+              <div className={styles.passwordErrors}>
+                {passwordErrors.map((error, index) => (
+                  <p key={index} className={styles.errorItem}>
+                    ✗ {error}
+                  </p>
+                ))}
+              </div>
+            )}
+            {formData.password && passwordErrors.length === 0 && (
+              <p className={styles.successMessage}>
+                ✓ Password strength: {passwordStrength}
+              </p>
+            )}
           </div>
 
           <div className={styles.formGroup}>
@@ -128,6 +184,14 @@ export default function RegisterPage() {
               placeholder="Confirm your password"
               required
             />
+            {formData.confirmPassword &&
+              formData.password === formData.confirmPassword && (
+                <p className={styles.successMessage}>✓ Passwords match</p>
+              )}
+            {formData.confirmPassword &&
+              formData.password !== formData.confirmPassword && (
+                <p className={styles.errorMessage}>✗ Passwords do not match</p>
+              )}
           </div>
 
           <button

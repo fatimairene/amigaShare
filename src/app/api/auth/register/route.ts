@@ -1,4 +1,5 @@
 import { connectToDatabase } from "@/lib/mongodb";
+import { validatePasswordStrength } from "@/lib/passwordValidator";
 import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -14,9 +15,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (password.length < 6) {
+    // Validate password strength
+    const validation = validatePasswordStrength(password);
+    if (!validation.isValid) {
       return NextResponse.json(
-        { error: "Password must be at least 6 characters" },
+        {
+          error: "Password does not meet security requirements",
+          details: validation.errors,
+        },
         { status: 400 }
       );
     }
