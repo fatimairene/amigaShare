@@ -1,28 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyToken } from "@/lib/tokenUtils";
+import { verifyTokenEdge } from "@/lib/edgeTokenUtils";
 
 const publicRoutes = ["/login", "/register"];
 const protectedRoutes = ["/", "/splitHouse", "/colours", "/results"];
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const isPublicRoute = publicRoutes.includes(pathname);
   const isProtectedRoute = protectedRoutes.includes(pathname);
 
   // Check if user has valid auth token
   const authToken = request.cookies.get("authToken")?.value;
+  const jwtSecret = process.env.NEXTAUTH_SECRET || "your-secret-key";
 
   // Verify the token is valid (not just present)
-  const isValidToken = authToken ? verifyToken(authToken) !== null : false;
+  let isValidToken = false;
+  if (authToken) {
+    const decoded = await verifyTokenEdge(authToken, jwtSecret);
+    isValidToken = decoded !== null;
+  }
 
   // If trying to access protected route without valid auth, redirect to login
   if (isProtectedRoute && !isValidToken) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // If logged in and trying to access login/register, allow
+  // If logged in and trying to access login/register, redirect to home
   if (isPublicRoute && isValidToken) {
-    return NextResponse.next();
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   return NextResponse.next();
