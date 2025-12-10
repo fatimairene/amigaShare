@@ -32,6 +32,22 @@ export default function Sidebar() {
 
     checkAuth();
 
+    // Listen for storage changes (when logout happens or token is set)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === "authToken") {
+        const token = localStorage.getItem("authToken");
+        setIsLoggedIn(!!token);
+      }
+    };
+
+    // Listen for custom auth change event
+    const handleAuthChange = () => {
+      checkAuth();
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("authChange", handleAuthChange);
+
     // Cierra el menú cuando el usuario interacciona con la página
     const handleInteraction = (e: Event) => {
       // No cierra si el clic es en el botón de hamburguesa
@@ -51,6 +67,8 @@ export default function Sidebar() {
       document.removeEventListener("click", handleInteraction);
       document.removeEventListener("keydown", closeSidebar);
       document.removeEventListener("scroll", closeSidebar);
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("authChange", handleAuthChange);
     };
   }, []);
 
@@ -73,6 +91,8 @@ export default function Sidebar() {
       console.error("Logout error:", error);
     }
     localStorage.removeItem("authToken");
+    // Dispatch event to notify other components of auth change
+    window.dispatchEvent(new Event("authChange"));
     setIsLoggedIn(false);
     router.push("/login");
   };
