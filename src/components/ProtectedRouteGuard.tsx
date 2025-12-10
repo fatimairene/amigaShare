@@ -15,7 +15,7 @@ export function ProtectedRouteGuard() {
       router.push("/login");
     }
 
-    // Prevent browser back button from accessing protected pages
+    // Handler for back button presses
     const handlePopState = (event: PopStateEvent) => {
       const token = localStorage.getItem("authToken");
       if (!token) {
@@ -25,29 +25,27 @@ export function ProtectedRouteGuard() {
       }
     };
 
-    // Listen for back button presses
-    window.addEventListener("popstate", handlePopState);
-
-    // Prevent caching of protected pages
-    const preventCaching = () => {
-      const token = localStorage.getItem("authToken");
-      if (!token) {
-        // Clear the page from cache
-        window.history.replaceState(null, "", window.location.href);
-        router.push("/login");
+    // Handler for preventing caching of protected pages
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        // Page was restored from cache
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+          // Clear the page from cache
+          window.history.replaceState(null, "", window.location.href);
+          router.push("/login");
+        }
       }
     };
 
-    window.addEventListener("pageshow", (event) => {
-      if (event.persisted) {
-        // Page was restored from cache
-        preventCaching();
-      }
-    });
+    // Listen for back button presses
+    window.addEventListener("popstate", handlePopState);
+    window.addEventListener("pageshow", handlePageShow);
 
     return () => {
+      // Properly remove the same event listener references that were added
       window.removeEventListener("popstate", handlePopState);
-      window.removeEventListener("pageshow", preventCaching as EventListener);
+      window.removeEventListener("pageshow", handlePageShow);
     };
   }, [router]);
 
