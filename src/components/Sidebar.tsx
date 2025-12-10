@@ -94,6 +94,8 @@ export default function Sidebar() {
     // Dispatch event to notify other components of auth change
     window.dispatchEvent(new Event("authChange"));
     setIsLoggedIn(false);
+    // Clear browser history to prevent back button access
+    window.history.replaceState(null, "", "/login");
     router.push("/login");
   };
 
