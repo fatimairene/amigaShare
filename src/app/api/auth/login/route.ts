@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { authenticateUser } from "@/auth";
+import { generateToken } from "@/lib/tokenUtils";
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,8 +23,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create a simple token (in production, use JWT)
-    const token = Buffer.from(JSON.stringify(user)).toString("base64");
+    // Generate a signed JWT token
+    const token = generateToken({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+    });
+
+    if (!token) {
+      return NextResponse.json(
+        { message: "Token generation failed" },
+        { status: 500 }
+      );
+    }
 
     const response = NextResponse.json({
       success: true,

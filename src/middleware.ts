@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { verifyToken } from "@/lib/tokenUtils";
 
 const publicRoutes = ["/login", "/register"];
 const protectedRoutes = ["/", "/splitHouse", "/colours", "/results"];
@@ -8,16 +9,19 @@ export function middleware(request: NextRequest) {
   const isPublicRoute = publicRoutes.includes(pathname);
   const isProtectedRoute = protectedRoutes.includes(pathname);
 
-  // Check if user has auth token
+  // Check if user has valid auth token
   const authToken = request.cookies.get("authToken")?.value;
 
-  // If trying to access protected route without auth, redirect to login
-  if (isProtectedRoute && !authToken) {
+  // Verify the token is valid (not just present)
+  const isValidToken = authToken ? verifyToken(authToken) !== null : false;
+
+  // If trying to access protected route without valid auth, redirect to login
+  if (isProtectedRoute && !isValidToken) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // If logged in and trying to access login/register, allow (they might want to logout first)
-  if (isPublicRoute && authToken) {
+  // If logged in and trying to access login/register, allow
+  if (isPublicRoute && isValidToken) {
     return NextResponse.next();
   }
 
