@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
 
     if (existingUser) {
       return NextResponse.json(
-        { error: "Email already registered" },
+        { error: "Unable to register with the provided information" },
         { status: 409 }
       );
     }
