@@ -51,7 +51,7 @@ function LoginContent() {
       // Token is stored in httpOnly cookie by the server
       // Dispatch event to notify other components of auth change
       window.dispatchEvent(new Event("authChange"));
-      // Redirigir al home
+      // Redirect to home
       router.push("/");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
