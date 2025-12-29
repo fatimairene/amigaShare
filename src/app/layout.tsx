@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Sidebar from "@/components/Sidebar";
-import SessionProvider from "@/components/SessionProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -17,10 +16,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <SessionProvider>
-          <Sidebar />
-          <main>{children}</main>
-        </SessionProvider>
+        <Sidebar />
+        <main>{children}</main>
       </body>
     </html>
   );
