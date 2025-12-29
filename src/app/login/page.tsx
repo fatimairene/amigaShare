@@ -43,7 +43,7 @@ function LoginContent() {
 
       if (!response.ok) {
         const data = await response.json();
-        setError(data.message || "Invalid credentials");
+        setError(data.error || "Invalid credentials");
         return;
       }
 

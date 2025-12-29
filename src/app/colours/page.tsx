@@ -175,6 +175,7 @@ export default function ColoursPage() {
 
   return (
     <div className={styles.container}>
+      <ProtectedRouteGuard />
       <h1>Color Assigner</h1>
 
       <div className={styles.modeSelector}>
@@ -376,7 +377,6 @@ export default function ColoursPage() {
           </div>
         </div>
       )}
-      <ProtectedRouteGuard />
     </div>
   );
 }
