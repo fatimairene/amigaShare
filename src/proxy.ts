@@ -4,7 +4,7 @@ import { verifyTokenEdge } from "@/lib/edgeTokenUtils";
 const publicRoutes = ["/login", "/register"];
 const protectedRoutes = ["/", "/splitHouse", "/colours", "/results"];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const isPublicRoute = publicRoutes.includes(pathname);
   const isProtectedRoute = protectedRoutes.includes(pathname);
