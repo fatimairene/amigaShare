@@ -40,7 +40,7 @@ export default function RegisterPage() {
     e.preventDefault();
     setError("");
 
-    // Validaciones
+    // Validation
     if (!formData.name || !formData.email || !formData.password) {
       setError("Please fill in all fields");
       return;
