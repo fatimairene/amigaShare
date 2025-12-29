@@ -1,6 +1,13 @@
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.NEXTAUTH_SECRET || "your-secret-key";
+const JWT_SECRET = process.env.NEXTAUTH_SECRET as string;
+
+// Ensure JWT_SECRET is defined at runtime
+if (!JWT_SECRET) {
+  throw new Error(
+    "NEXTAUTH_SECRET environment variable is not defined. Please set it in your .env.local file."
+  );
+}
 
 export interface TokenPayload {
   id: string;
