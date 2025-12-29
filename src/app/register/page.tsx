@@ -78,7 +78,7 @@ export default function RegisterPage() {
         return;
       }
 
-      // Redirigir a login
+      // Redirect to login
       router.push("/login?message=Account created successfully");
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
