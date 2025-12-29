@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import UsersList from "@/components/UsersList";
+import { ProtectedRouteGuard } from "@/components/ProtectedRouteGuard";
 
 export default function Home() {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -12,6 +13,7 @@ export default function Home() {
 
   return (
     <div>
+      <ProtectedRouteGuard />
       <UsersList key={refreshKey} onUserAdded={handleUserAdded} />
     </div>
   );

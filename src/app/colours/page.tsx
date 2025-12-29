@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ProtectedRouteGuard } from "@/components/ProtectedRouteGuard";
 import styles from "./colours.module.css";
 
 interface PersonWithColor {
@@ -174,6 +175,7 @@ export default function ColoursPage() {
 
   return (
     <div className={styles.container}>
+      <ProtectedRouteGuard />
       <h1>Color Assigner</h1>
 
       <div className={styles.modeSelector}>
