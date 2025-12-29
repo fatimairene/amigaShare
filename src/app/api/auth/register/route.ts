@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verificar si el usuario ya existe
+    // Check if user already exists
     const existingUser = await db.collection("accounts").findOne({ email });
 
     if (existingUser) {
