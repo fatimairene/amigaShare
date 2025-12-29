@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Hashear contraseña
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Crear usuario
