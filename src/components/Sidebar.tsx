@@ -1,13 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import styles from "./Sidebar.module.css";
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const isActive = (href: string) => pathname === href;
 
@@ -20,6 +23,29 @@ export default function Sidebar() {
   };
 
   useEffect(() => {
+    // Check if user is logged in via API (uses httpOnly cookie)
+    const checkAuth = async () => {
+      try {
+        const response = await fetch("/api/auth/check");
+        const data = await response.json();
+        setIsLoggedIn(data.isAuthenticated);
+      } catch (error) {
+        console.error("Auth check failed:", error);
+        setIsLoggedIn(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
+
+    // Listen for custom auth change event (triggered after login/logout)
+    const handleAuthChange = () => {
+      checkAuth();
+    };
+
+    window.addEventListener("authChange", handleAuthChange);
+
     // Cierra el menú cuando el usuario interacciona con la página
     const handleInteraction = (e: Event) => {
       // No cierra si el clic es en el botón de hamburguesa
@@ -39,6 +65,7 @@ export default function Sidebar() {
       document.removeEventListener("click", handleInteraction);
       document.removeEventListener("keydown", closeSidebar);
       document.removeEventListener("scroll", closeSidebar);
+      window.removeEventListener("authChange", handleAuthChange);
     };
   }, []);
 
@@ -52,6 +79,20 @@ export default function Sidebar() {
   const handleNavClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     closeSidebar();
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+    // Dispatch event to notify other components of auth change
+    window.dispatchEvent(new Event("authChange"));
+    setIsLoggedIn(false);
+    // Clear browser history to prevent back button access
+    window.history.replaceState(null, "", "/login");
+    router.push("/login");
   };
 
   return (
@@ -70,30 +111,47 @@ export default function Sidebar() {
         onClick={(e) => e.stopPropagation()}
       >
         <nav className={styles.nav} onClick={handleNavClick}>
-          <Link
-            href="/"
-            className={`${styles.navLink} ${
-              isActive("/") ? styles.active : ""
-            }`}
-          >
-            Home
-          </Link>
-          <Link
-            href="/splitHouse"
-            className={`${styles.navLink} ${
-              isActive("/splitHouse") ? styles.active : ""
-            }`}
-          >
-            Casa rural
-          </Link>
-          <Link
-            href="/colours"
-            className={`${styles.navLink} ${
-              isActive("/colours") ? styles.active : ""
-            }`}
-          >
-            Colores
-          </Link>
+          {isLoggedIn && (
+            <>
+              <Link
+                href="/"
+                className={`${styles.navLink} ${
+                  isActive("/") ? styles.active : ""
+                }`}
+              >
+                Home
+              </Link>
+              <Link
+                href="/splitHouse"
+                className={`${styles.navLink} ${
+                  isActive("/splitHouse") ? styles.active : ""
+                }`}
+              >
+                Split Expenses
+              </Link>
+              <Link
+                href="/colours"
+                className={`${styles.navLink} ${
+                  isActive("/colours") ? styles.active : ""
+                }`}
+              >
+                Color Party
+              </Link>
+            </>
+          )}
+          {isLoggedIn && (
+            <button onClick={handleLogout} className={styles.logoutButton}>
+              Logout
+            </button>
+          )}
+          {!isLoggedIn && !isLoading && (
+            <div className={styles.notLoggedInMessage}>
+              <p>Please log in to access the app</p>
+              <Link href="/login" className={styles.loginLink}>
+                Go to Login
+              </Link>
+            </div>
+          )}
         </nav>
       </aside>
     </>
