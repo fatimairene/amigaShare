@@ -21,7 +21,7 @@ export function AddParticipantModal({
   const [mode, setMode] = useState<"select" | "manual">("select"); // select from list or type manually
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [manualName, setManualName] = useState("");
-  const [daysStaying, setDaysStaying] = useState(1);
+  const [daysStaying, setDaysStaying] = useState<number | string>(1);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -40,7 +40,12 @@ export function AddParticipantModal({
       setLoading(true);
       const response = await fetch("/api/users");
       const data = await response.json();
-      setUsers(data.data || []);
+      const sortedUsers = (data.data || []).sort((a: User, b: User) => {
+        const nameA = `${a.name} ${a.surname}`.toLowerCase();
+        const nameB = `${b.name} ${b.surname}`.toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
+      setUsers(sortedUsers);
     } catch (err) {
       console.error("Error fetching users:", err);
     } finally {
@@ -183,9 +188,20 @@ export function AddParticipantModal({
           <input
             type="number"
             value={daysStaying}
-            onChange={(e) =>
-              setDaysStaying(Math.max(1, parseInt(e.target.value) || 1))
-            }
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val === "") {
+                setDaysStaying("");
+              } else {
+                const num = parseInt(val) || 1;
+                setDaysStaying(Math.max(1, num));
+              }
+            }}
+            onBlur={() => {
+              if (daysStaying === "" || daysStaying === 0) {
+                setDaysStaying(1);
+              }
+            }}
             min="1"
             className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
           />

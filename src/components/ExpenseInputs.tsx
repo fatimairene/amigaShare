@@ -60,7 +60,12 @@ export function DivisionModeSelector({
             className="w-4 h-4 mt-1 cursor-pointer accent-blue-500"
           />
           <div>
-            <p className="font-medium text-gray-900 dark:text-white">
+            <p
+              className="font-medium text-gray-900 dark:text-white"
+              style={{
+                color: mode === "individual" ? "#1e40af" : undefined,
+              }}
+            >
               Proportional to Days Stayed
             </p>
             <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -85,7 +90,12 @@ export function DivisionModeSelector({
             className="w-4 h-4 mt-1 cursor-pointer accent-blue-500"
           />
           <div>
-            <p className="font-medium text-gray-900 dark:text-white">
+            <p
+              className="font-medium text-gray-900 dark:text-white"
+              style={{
+                color: mode === "daily-split" ? "#1e40af" : undefined,
+              }}
+            >
               Split by Day
             </p>
             <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -111,7 +121,12 @@ export function DivisionModeSelector({
             className="w-4 h-4 mt-1 cursor-pointer accent-blue-500"
           />
           <div className="flex-1">
-            <p className="font-medium text-gray-900 dark:text-white">
+            <p
+              className="font-medium text-gray-900 dark:text-white"
+              style={{
+                color: mode === "equal" ? "#1e40af" : undefined,
+              }}
+            >
               Equal Split
             </p>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">

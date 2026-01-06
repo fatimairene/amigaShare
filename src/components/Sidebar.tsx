@@ -127,7 +127,7 @@ export default function Sidebar() {
                   isActive("/splitHouse") ? styles.active : ""
                 }`}
               >
-                Casa rural
+                Split Expenses
               </Link>
               <Link
                 href="/colours"
@@ -135,7 +135,7 @@ export default function Sidebar() {
                   isActive("/colours") ? styles.active : ""
                 }`}
               >
-                Colores
+                Color Party
               </Link>
             </>
           )}
