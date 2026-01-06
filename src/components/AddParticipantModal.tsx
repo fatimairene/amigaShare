@@ -80,7 +80,7 @@ export function AddParticipantModal({
       return;
     }
 
-    onAdd(nameToAdd, daysStaying);
+    onAdd(nameToAdd, Number(daysStaying) || 1);
     setSelectedUser(null);
     setManualName("");
     setDaysStaying(1);
